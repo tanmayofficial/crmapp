@@ -7,6 +7,7 @@ const RequireAuth = ({ allowedRoles }) => {
     return (
         // wrap this condition with status = logged in 
         localStorage.getItem("userTypes") === allowedRoles[0]
+        //outlet will allow us to have any component on top of it like 'lorem ipsum'
             ? <Outlet />
             : localStorage.getItem("userTypes")
                 ? <Navigate to="/unauthorized" state={{ from: location }} replace />

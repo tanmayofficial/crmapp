@@ -1,88 +1,51 @@
-import React, { useState } from 'react';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
-import { userSignup, userSignin } from '../api/auth';
+import React, { useState } from "react";
+// import { Dropdown, DropDownButton } from "react-bootstrap";
+import { userSignup, userSignin } from "../api/auth";
 import { useNavigate } from 'react-router-dom';
-
-// call the useNavigate hook
-// declare a variable = useNavigate()
-// history('/customer)
+import '../styles/login.css';
 
 function Login() {
-  const [signUp, setshowsignUp] = useState(false);
-  const [userType, setuserType] = useState("CUSTOMER");
+  const [showSignup, setShowSignup] = useState(false);
+  const [userType, setUserType] = useState("CUSTOMER");
   const [userSignupData, setUserSignupData] = useState({});
-  const [message, setMessage] = useState("");
-  const toggleSignUp = () => {
-    setshowsignUp(!signUp);
+  const [message, setMessage] = useState('');
+
+  const toggleSignup = () => {
+    setShowSignup(!showSignup);
   };
 
   const handleSelect = (e) => {
-    setuserType(e);
-  };
+    setUserType(e.target.value);
+  }
 
   const updateSignupData = (e) => {
     userSignupData[e.target.id] = e.target.value;
     console.log(userSignupData);
-  };
-  
-  let history= useNavigate();
-  
-  const signupFn = (e) => {
-    const username = userSignupData.username;
-    const userId = userSignupData.userId;
-    const email = userSignupData.email;
-    const password = userSignupData.password;
-
-    const data = {
-      name: username,
-      userId: userId,
-      email: email,
-      userTypes: userType,
-      password: password,
-    };
-    console.log("DATA", data);
-
-    e.preventDefault();
-
-    userSignup(data)
-      .then(function (response) {
-        if (response === 201) {
-          history(0);
-        }
-      })
-      .catch(function (error) {
-        if (error.response.status === 400) {
-          setMessage(error.response.data.message);
-        } else {
-          console.log(error);
-        }
-      });
-  };
+  }
 
   const loginFn = (e) => {
-    
-    const userId = userSignupData.userId;
-    const password = userSignupData.password;
+
+    const userId = document.getElementById("userId").value;
+    const password = document.getElementById("password").value;
 
     const data = {
       userId: userId,
-      password: password,
-    };
-    console.log("DATA", data);
+      password: password
+    }
     e.preventDefault();
 
-    userSignin(data)
-      .then(function (response) {
-        console.log(response);
-        if (response.status === 200) {
-          //userId, email, userType, userStatis, token
-          localStorage.setItem("name", response.data.name);
-          localStorage.setItem("userId", response.data.userId);
-          localStorage.setItem("email", response.data.email);
-          localStorage.setItem("userTypes", response.data.userTypes);
-          localStorage.setItem("userStatus", response.data.userStatus);
-          localStorage.setItem("token", response.data.accessToken);
-
+    userSignin(data).then(function (response) {
+      console.log(response);
+      if (response.status === 200) {
+        if (response.data.message) {
+          setMessage(response.data.message);
+        } else {
+          localStorage.setItem('name', response.data.name);
+          localStorage.setItem('userId', response.data.userId);
+          localStorage.setItem('email', response.data.email);
+          localStorage.setItem('userTypes', response.data.userTypes);
+          localStorage.setItem('userStatus', response.data.userStatus);
+          localStorage.setItem('token', response.data.accessToken);
           if (response.data.userTypes === "CUSTOMER") {
             history("/customer");
           } else if (response.data.userTypes === "ENGINEER") {
@@ -91,114 +54,128 @@ function Login() {
             history("/admin");
           }
         }
-      })
-      .catch(function (error) {
-        if (error.response.status === 400) {
-          setMessage(error.response.data.message);
-        } else {
-          console.log(error);
-        }
-      });
-  };
+      }
+
+    }).catch(function (error) {
+      if (error.response.status === 400) {
+        setMessage(error.response.data.message);
+      }
+      else {
+        console.log(error);
+      }
+    })
+  }
+  // all the routes will be stored in the useNavigate hook. history is just a variable.
+  let history = useNavigate();
+
+  const signupFn = (e) => {
+
+    const username = userSignupData.username;
+    const userId = userSignupData.userId;
+    const email = userSignupData.email;
+    const password = userSignupData.password;
+
+    //the userType data that'll be sending to api by
+    const data = {
+      name: username,
+      userId: userId,
+      email: email,
+      password: password,
+      userType: userType
+    }
+    console.log('data', data);
+
+    e.preventDefault();
+
+    userSignup(data).then(function (response) {
+      if (response.status === 201) {
+        window.location.href = '/';
+      }
+    }).catch(function (error) {
+      if (error.response.status === 400) {
+        setMessage(error.response.data.message);
+      }
+      else {
+        console.log(error);
+      }
+    })
+
+
+  }
+
 
   return (
-    <div className="bg-primary d-flex justify-content-center align-items-center vh-100">
-      <div className="card m-5 p-5">
+    <div className="bg-dark text-white d-flex justify-content-center align-items-center vh-100">
+      <div className="card bg-secondary p-5">
         <div className="row">
           <div className="col">
-            {!signUp ? (
-              <div className="login">
-                <form onSubmit={loginFn}>
-                  <h4 className="text-center p-3"> Login</h4>
-                  <input
-                    className="input-group m-2 form-control"
-                    type="text"
-                    placeholder="Enter your userId"
-                    id="userId"
-                    onChange={updateSignupData}
-                  />
-                  <input
-                    className="input-group m-2 form-control"
-                    type="password"
-                    placeholder="Enter Password"
-                    id="password"
-                    onChange={updateSignupData}
-                  />
-                  <button className="btn btn-primary m-2 d-flex justify-content-center align-items-center">
-                    Login
-                  </button>
-                  <div
-                    className="text-center text-info"
-                    onClick={() => toggleSignUp()}
-                  >
-                    Not a member? Signup
-                  </div>
-                  <div className="text-danger text-center">{message}</div>
-                </form>
-              </div>
-            ) : (
-              <div className="signup">
-                <form onSubmit={signupFn}>
-                  <h4 className="text-center p-3"> Signup</h4>
-                  <input
-                    className="input-group m-2 form-control"
-                    type="text"
-                    placeholder="Enter your Name"
-                    id="username"
-                    onChange={updateSignupData}
-                  />
-                  <input
-                    className="input-group m-2 form-control"
-                    type="text"
-                    placeholder="Enter your userId"
-                    id="userId"
-                    onChange={updateSignupData}
-                  />
-                  <input
-                    className="input-group m-2 form-control"
-                    type="email"
-                    placeholder="Enter your email"
-                    id="email"
-                    onChange={updateSignupData}
-                  />
-                  <input
-                    className="input-group m-2 form-control"
-                    type="password"
-                    placeholder="Enter Password"
-                    id="password"
-                    onChange={updateSignupData}
-                  />
+            {
+              !showSignup ? (
+                <div className="login">
+                  <h4 className="text-center text-dark mb-4">Login Here</h4>
+                  {/*
+                      userid, password, login, button, toggle text
+                    */}
+                  <form onSubmit={loginFn}>
+                    <div className="input-group m-2">
+                      <input type="text" className="form-control" placeholder="User Id" id="userId"/>
+                    </div>
+                    <div className="input-group m-2">
+                      <input type="password" className="form-control" placeholder="Password" id="password" />
+                    </div>
+                    <div className="input-group m-2">
+                      <button className="form-control btn btn-dark">log in</button>
+                    </div>
+                    <div className="input-group text-dark text-center pe-auto m-2" onClick={toggleSignup}>
+                      Don't have an account? &nbsp; <a className="link"> Signup here</a>
+                    </div>
+                    <div className="text-danger">{message}</div>
+                  </form>
+                </div>
+              ) : (
+                <div className="signup">
+                  <h4 className="text-center text-dark mb-4">Signup Here</h4>
+                  {/*
+                      userid, username, email, password, usertype, signup, button, toggle text
+                    */}
+                  <form onSubmit={signupFn}>
+                    <div className="input-group m-2">
+                      <input type="text" className="form-control" placeholder="User Id" id="userId" onChange={updateSignupData} />
+                    </div>
+                    <div className="input-group m-2">
+                      <input type="text" className="form-control" placeholder="User Name" id="username" onChange={updateSignupData} />
+                    </div>
+                    <div className="input-group m-2">
+                      <input type="email" className="form-control" placeholder="Email Id" id="email" onChange={updateSignupData} />
+                    </div>
+                    <div className="input-group m-2">
+                      <input type="password" className="form-control" placeholder="Password" id="password" onChange={updateSignupData} />
+                    </div>
 
-                  <div className="input-group m-2 form-control">
-                    <span className="text-muted">User Type</span>
-                    <DropdownButton
-                      align="end"
-                      title={userType}
-                      variant="light"
-                      className="mx-2"
-                      onSelect={handleSelect}
-                    >
-                      <Dropdown.Item eventKey="CUSTOMER">
-                        CUSTOMER
-                      </Dropdown.Item>
-                      <Dropdown.Item eventKey="ENGINEER">
-                        ENGINEER
-                      </Dropdown.Item>
-                    </DropdownButton>
-                  </div>
-                  <button className="btn btn-primary m-2 d-flex justify-content-center align-items-center">
-                    Signup
-                  </button>
-                  <div
-                    className="text-center text-info"
-                    onClick={() => toggleSignUp()}
-                  >
-                    Already a member? Login
-                  </div>
-                  <div className="text-danger text-center">{message}</div>
-                </form>
-              </div>
-            )}
+                    <div className="input-group m-2">
+                      <select
+                        className="form-select"
+                        aria-label="Default select example"
+                        onChange={handleSelect}
+                        value={userType}
+                      >
+                        <option defaultValue>User type</option>
+                        <option value="CUSTOMER">Customer</option>
+                        <option value="ENGINEER">Engineer</option>
+                        {/* <option value="ADMIN">Admin</option> */}
+                      </select>
+                    </div>
+                    <div className="input-group m-2">
+                      <button className="form-control btn btn-dark">Signup</button>
+                    </div>
+                    <div className="input-group text-dark text-center m-2" onClick={toggleSignup}>
+                      Don't have an account? &nbsp; <a className="link"> Login here </a>
+                    </div>
+                    <div className="text-danger">{message}</div>
+                  </form>
+                </div>
+              )
+            }
           </div>
         </div>
       </div>

@@ -1,17 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
-import Login from './pages/Login';
-import RequireAuth from './component/RequireAuth'
+import Login from "./pages/Login";
+import Customer from './pages/Customer';
+import Engineer from './pages/Engineer';
 import Admin from './pages/Admin';
-import Engineer from "./pages/Engineer";
-import Customer from "./pages/Customer";
-import NotFound from "./component/NotFound";
+import NotFound from './component/NotFound';
 import Unauthorized from './component/Unauthorized';
-import './App.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
+import RequireAuth from './component/RequireAuth';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import '@coreui/coreui/dist/css/coreui.min.css';
-import "bootstrap-icons/font/bootstrap-icons.css";
+import './App.css';
 
 const ROLES = {
   'CUSTOMER': 'CUSTOMER',
@@ -21,32 +21,32 @@ const ROLES = {
 
 function App() {
   return (
+
     <Router>
       <Routes>
-        <Route
-          exact
-          path="/"
-          element={
-            <Suspense fallback={<div>Loading...</div>}>
-              <Login />
-            </Suspense>
-          }
-        />
-        <Route path="unauthorized" element={<Unauthorized />} />
-          <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}>
-            <Route path="/admin" exact element={<Admin />} />
-          </Route>
-          <Route element={<RequireAuth allowedRoles={[ROLES.CUSTOMER]} />}>
-            <Route path="/customer" element={<Customer />} />
-          </Route>
-          <Route element={<RequireAuth allowedRoles={[ROLES.ENGINEER]} />}>
-            <Route path="/engineer" element={<Engineer />} />
-          </Route>
-          <Route path="/*" element={<NotFound />} />
+        <Route exact path='/' element={
+          <Suspense fallback={<div>Loading...</div>}>
+            <Login />
+          </Suspense>
+        } />
+
+        <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />} >
+          <Route path='/admin' exact element={<Admin />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[ROLES.ENGINEER]} />} >
+          <Route path='/engineer' element={<Engineer />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[ROLES.CUSTOMER]} />} >
+          <Route path='/Customer' element={<Customer />} />
+        </Route>
+
+        <Route path='/unauthorized' element={<Unauthorized />} />
+        <Route path='/*' element={<NotFound />} />
       </Routes>
     </Router>
-  );
+
+  )
 }
-
 export default App;
-

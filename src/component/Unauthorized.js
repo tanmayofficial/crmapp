@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import not from '../assets/403.svg'
+import unauth from '../assets/403.svg'
 
 
 const Unauthorized = () => {
@@ -11,7 +11,7 @@ const Unauthorized = () => {
         <section className="bg-light vh-100 d-flex justify-content-center align-items-center text-center">
             <div>
                 <h1>Unauthorized Access</h1>
-                <img src={not} alt="" />
+                <img src={unauth} alt="" />
                 <br />
                 <p>You do not have access to the requested page.</p>
                 <div className="flex-row">
