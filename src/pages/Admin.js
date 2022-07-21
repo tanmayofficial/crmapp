@@ -2,7 +2,8 @@ import Sidebar from '../component/Sidebar';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import MaterialTable from '@material-table/core';
 import { useState, useEffect } from 'react';
-import { fetchTicket } from '../api/tickets';
+import { fetchTicket, ticketCreation, ticketUpdation } from '../api/tickets';
+import { getAllUsers, updateUserData } from '../api/user';
 import Button from 'react-bootstrap/Button';
 import { Modal } from 'react-bootstrap';
 import { ExportPdf, ExportCsv } from '@material-table/exporters';
@@ -15,7 +16,10 @@ import '../styles/admin.css'
 
 function Admin() {
   const [userModal, setUserModal] = useState(false);
-  const [ticketDetails, setTicketDetails] = useState([])
+  const [ticketList, setTicketList] = useState([])
+  const [userDetails, setUserDetails] = useState([])
+  const [ticketDetails, setTicketDetails] = useState({})
+  const [selectedCurrTicket, setSelectedCurrTicket] = useState({})
 
   const openUserModal = () => {
     setUserModal(true);
@@ -23,11 +27,24 @@ function Admin() {
   const closeUserModal = () => {
     setUserModal(false);
   }
-  const fetchTicketsApi = () => {
+  const fetchAllTickets = () => {
     fetchTicket().then((res) => {
       if (res.status === 200) {
         console.log(res);
-        setTicketDetails(res.data);
+        setTicketList(res.data);
+      }
+    }).catch((err) => {
+      console.log(err);
+    })
+  }
+  const fetchAllUsers = (userId) => {
+    getAllUsers(userId).then((res) => {
+      if (res.status === 200) {
+        if (userId) {
+          setUserDetails(res.data);
+        } else {
+          setUserDetails(res.data);
+        }
       }
     }).catch((err) => {
       console.log(err);
@@ -35,11 +52,34 @@ function Admin() {
   }
 
   useEffect(() => {
-    (async ()=> {
-      fetchTicketsApi()
-      // getAllUsers()
-    }) ()
+    (async () => {
+      fetchAllTickets()
+      fetchAllUsers()
+    })()
   }, [])
+
+  const updateTicket = () => {
+    ticketUpdation(id, selectedCurrTicket).then((res) => {
+      console.log('ticket updated succesfully');
+    })
+  }
+
+  const editTicket = (ticketId) => {
+    setUserModal(true)
+
+    const ticket = {
+      assignee: ticketDetails.assignee,
+      description: ticketDetails.description,
+      id: ticketDetails.id,
+      reporter: ticketDetails.reporter,
+      status: ticketDetails.status,
+      title: ticketDetails.title,
+      ticketPriority: ticketDetails.ticketPriority
+    }
+
+    setSelectedCurrTicket(ticket)
+  }
+
 
   return (
     <div className='bg-dark vh-100'>
@@ -154,6 +194,7 @@ function Admin() {
           <hr />
           <div className="container">
             <MaterialTable
+              onRowClick={(rowData) => { editTicket(rowData.userId) }}
               columns={[
                 { title: 'Ticket Id', field: 'id' },
                 { title: 'Title', field: 'title' },
@@ -171,7 +212,56 @@ function Admin() {
                   }
                 }
               ]}
-              data={ticketDetails}
+              data={ticketList}
+
+              options={{
+                filtering: true,
+                sorting: true,
+                exportMenu: [{
+                  label: 'Export PDF',
+                  exportFunc: (cols, datas) => ExportPdf(cols, datas, 'UserRecords')
+                }, {
+                  label: 'Export CSV',
+                  exportFunc: (cols, datas) => ExportCsv(cols, datas, 'userRecords')
+                }],
+                headerStyle: {
+                  backgroundColor: 'darkblue',
+                  color: '#FFF'
+                },
+                rowStyle: {
+                  backgroundColor: '#EEE',
+                }
+              }}
+              title="Ticket Details" />
+          </div>
+
+          <hr />
+
+          <div className="container">
+            <MaterialTable
+              onRowClick={(rowData, userId) => updateTicket(rowData.userId)}
+              columns={[
+                { title: 'User Id', field: 'userId' },
+                { title: 'Name', field: 'name' },
+                { title: 'Email', field: 'email' },
+                {
+                  title: 'User Types', field: 'userTypes',
+                  lookup: {
+                    'APPROVED': 'APPROVED',
+                    'PENDING': 'PENDING',
+                    'REJECTED': 'REJECTED'
+                  }
+                },
+                {
+                  title: 'Status', field: 'userStatus',
+                  lookup: {
+                    'CUSTOMER': 'CUSTOMER',
+                    'ENGINEER': 'ENGINEER',
+                    'ADMIN': 'ADMIN'
+                  }
+                }
+              ]}
+              data={userDetails}
 
               options={{
                 filtering: true,
@@ -192,36 +282,35 @@ function Admin() {
                 }
               }}
               title="User Details" />
-
-
-            <div>
-              <Button className="btn btn-primary" onClick={openUserModal}>Open Modals</Button>
-
-              <Modal show={userModal}
-                onHide={closeUserModal}
-                centered
-                backdrop="static"
-                keyboard={false}>
-                <Modal.Header closeButton>
-                  <Modal.Title>Edit Details</Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body>
-                  <form className="">
-                    <div className="p-1">
-                      <h5 className="text-primary">User ID: </h5>
-                      <hr />
-                      <div className="input-group">
-                        <label className="label input-group-text label-md ">Name</label>
-                        <input type="text" className="form-control" name="name" disabled/>
-
-                      </div>
-                    </div>
-                  </form>
-                </Modal.Body>
-              </Modal>
-            </div>
           </div>
+
+          <div>
+            <Button className="btn btn-primary" onClick={openUserModal}>Open Modals</Button>
+
+            <Modal show={userModal}
+              onHide={closeUserModal}
+              centered
+              backdrop="static"
+              keyboard={false}>
+              <Modal.Header closeButton>
+                <Modal.Title>Edit Details</Modal.Title>
+              </Modal.Header>
+
+              <Modal.Body>
+                <form className="">
+                  <div className="p-1">
+                    <h5 className="text-primary">Ticket ID: {userDetails.userId}</h5>
+                    <hr />
+                    <div className="input-group">
+                      <label className="label input-group-text label-md ">Name {userDetails.name}</label>
+                      <input type="text" className="form-control" name="name" disabled onChange={onTicketUpdate}/>
+                    </div>
+                  </div>
+                </form>
+              </Modal.Body>
+            </Modal>
+          </div>
+
         </div>
       </div>
     </div>

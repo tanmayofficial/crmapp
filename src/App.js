@@ -7,6 +7,7 @@ import Admin from './pages/Admin';
 import NotFound from './component/NotFound';
 import Unauthorized from './component/Unauthorized';
 import RequireAuth from './component/RequireAuth';
+import Spinner from 'react-bootstrap/Spinner';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -25,7 +26,7 @@ function App() {
     <Router>
       <Routes>
         <Route exact path='/' element={
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div><Spinner animation="grow" /></div>}>
             <Login />
           </Suspense>
         } />

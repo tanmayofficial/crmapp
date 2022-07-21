@@ -9,6 +9,7 @@ function Login() {
   const [userType, setUserType] = useState("CUSTOMER");
   const [userSignupData, setUserSignupData] = useState({});
   const [message, setMessage] = useState('');
+  const [passwordType, setPasswordType] = useState("password");
 
   const toggleSignup = () => {
     setShowSignup(!showSignup);
@@ -21,6 +22,14 @@ function Login() {
   const updateSignupData = (e) => {
     userSignupData[e.target.id] = e.target.value;
     console.log(userSignupData);
+  }
+  const togglePassword =()=>{
+    if(passwordType==="password")
+    {
+     setPasswordType("text")
+     return;
+    }
+    setPasswordType("password")
   }
 
   const loginFn = (e) => {
@@ -118,10 +127,15 @@ function Login() {
                     */}
                   <form onSubmit={loginFn}>
                     <div className="input-group m-2">
-                      <input type="text" className="form-control" placeholder="User Id" id="userId"/>
+                      <input type="text" className="form-control" placeholder="User Id" id="userId" />
                     </div>
                     <div className="input-group m-2">
-                      <input type="password" className="form-control" placeholder="Password" id="password" />
+                      <input type={passwordType} className="form-control" placeholder="Password" id="password" />
+                      <div className="input-group-btn">
+                        <button className="btn btn-outline-dark" onClick={togglePassword}>
+                          {passwordType === "password" ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
+                        </button>
+                      </div>
                     </div>
                     <div className="input-group m-2">
                       <button className="form-control btn btn-dark">log in</button>
@@ -149,7 +163,12 @@ function Login() {
                       <input type="email" className="form-control" placeholder="Email Id" id="email" onChange={updateSignupData} />
                     </div>
                     <div className="input-group m-2">
-                      <input type="password" className="form-control" placeholder="Password" id="password" onChange={updateSignupData} />
+                      <input type={passwordType} className="form-control" placeholder="Password" id="password" onChange={updateSignupData} />
+                      <div className="input-group-btn">
+                        <button className="btn btn-outline-dark" onClick={togglePassword}>
+                          {passwordType === "password" ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="input-group m-2">
