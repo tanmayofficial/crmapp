@@ -1,71 +1,85 @@
-import Sidebar from '../component/Sidebar';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import MaterialTable from '@material-table/core';
-import { useState, useEffect } from 'react';
-import { fetchTicket, ticketCreation, ticketUpdation } from '../api/tickets';
-import { getAllUsers, updateUserData } from '../api/user';
-import Button from 'react-bootstrap/Button';
-import { Modal } from 'react-bootstrap';
-import { ExportPdf, ExportCsv } from '@material-table/exporters';
-import 'react-circular-progressbar/dist/styles.css';
-import '../styles/admin.css'
+import { useState, useEffect } from "react";
+import Sidebar from "../component/Sidebar";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import MaterialTable from "@material-table/core";
+import { fetchTicket, ticketCreation, ticketUpdation } from "../api/tickets";
+import { getAllUsers, updateUserData } from "../api/user";
+import Button from "react-bootstrap/Button";
+import { Modal } from "react-bootstrap";
+import { ExportPdf, ExportCsv } from "@material-table/exporters";
+import "react-circular-progressbar/dist/styles.css";
+import "../styles/admin.css";
 
 // access: can view all users
 // approve/decline/assign => change the status
 // status/view of tickets
 
+// Psuedo code for put logic
+//  read the data ==> (ticket) => setState(ticket)
+// grab the new Values ==> (data) => setState(data)
+// call the api => function(id, data)
+
+const backToLogin = () => {
+  localStorage.clear();
+  window.location.href = "/";
+};
+
 function Admin() {
   const [userModal, setUserModal] = useState(false);
-  const [ticketList, setTicketList] = useState([])
-  const [userDetails, setUserDetails] = useState([])
-  const [ticketDetails, setTicketDetails] = useState({})
-  const [selectedCurrTicket, setSelectedCurrTicket] = useState({})
+  const [ticketList, setTicketList] = useState([]);
+  const [userDetails, setUserDetails] = useState([]);
+  const [ticketDetails, setTicketDetails] = useState({});
+  const [selectedCurrTicket, setSelectedCurrTicket] = useState({});
 
   const openUserModal = () => {
     setUserModal(true);
-  }
+  };
   const closeUserModal = () => {
     setUserModal(false);
-  }
+  };
   const fetchAllTickets = () => {
-    fetchTicket().then((res) => {
-      if (res.status === 200) {
-        console.log(res);
-        setTicketList(res.data);
-      }
-    }).catch((err) => {
-      console.log(err);
-    })
-  }
-  const fetchAllUsers = (userId) => {
-    getAllUsers(userId).then((res) => {
-      if (res.status === 200) {
-        if (userId) {
-          setUserDetails(res.data);
-        } else {
-          setUserDetails(res.data);
+    fetchTicket()
+      .then((res) => {
+        if (res.status === 200) {
+          console.log(res);
+          setTicketList(res.data);
         }
-      }
-    }).catch((err) => {
-      console.log(err);
-    })
-  }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const fetchAllUsers = (userId) => {
+    getAllUsers(userId)
+      .then((res) => {
+        if (res.status === 200) {
+          if (userId) {
+            setUserDetails(res.data);
+          } else {
+            setUserDetails(res.data);
+          }
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   useEffect(() => {
     (async () => {
-      fetchAllTickets()
-      fetchAllUsers()
-    })()
-  }, [])
+      fetchAllTickets();
+      fetchAllUsers();
+    })();
+  }, []);
 
   const updateTicket = () => {
     ticketUpdation(id, selectedCurrTicket).then((res) => {
-      console.log('ticket updated succesfully');
-    })
-  }
+      console.log("ticket updated succesfully");
+    });
+  };
 
   const editTicket = (ticketId) => {
-    setUserModal(true)
+    setUserModal(true);
 
     const ticket = {
       assignee: ticketDetails.assignee,
@@ -74,16 +88,14 @@ function Admin() {
       reporter: ticketDetails.reporter,
       status: ticketDetails.status,
       title: ticketDetails.title,
-      ticketPriority: ticketDetails.ticketPriority
-    }
+      ticketPriority: ticketDetails.ticketPriority,
+    };
 
-    setSelectedCurrTicket(ticket)
-  }
-
+    setSelectedCurrTicket(ticket);
+  };
 
   return (
-    <div className='bg-dark vh-100'>
-
+    <div className="bg-dark vh-100">
       <div className="row">
         <div className="col-1">
           <Sidebar />
@@ -106,15 +118,18 @@ function Admin() {
                     <div className="col text-center">8</div>
                     <div className="col">
                       <div style={{ width: 60, height: 70 }}>
-                        <CircularProgressbar value={50} text={50 + '%'} styles={buildStyles({
-                          textColor: 'blue',
-                          pathColor: 'darkBlue',
-                        })} />
+                        <CircularProgressbar
+                          value={50}
+                          text={50 + "%"}
+                          styles={buildStyles({
+                            textColor: "blue",
+                            pathColor: "darkBlue",
+                          })}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -130,15 +145,18 @@ function Admin() {
                     <div className="col text-center">2</div>
                     <div className="col">
                       <div style={{ width: 60, height: 70 }}>
-                        <CircularProgressbar value={20} text={20 + '%'} styles={buildStyles({
-                          textColor: 'blue',
-                          pathColor: 'darkBlue',
-                        })} />
+                        <CircularProgressbar
+                          value={20}
+                          text={20 + "%"}
+                          styles={buildStyles({
+                            textColor: "blue",
+                            pathColor: "darkBlue",
+                          })}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -154,15 +172,18 @@ function Admin() {
                     <div className="col text-center">35</div>
                     <div className="col">
                       <div style={{ width: 60, height: 70 }}>
-                        <CircularProgressbar value={90} text={90 + '%'} styles={buildStyles({
-                          textColor: 'blue',
-                          pathColor: 'darkBlue',
-                        })} />
+                        <CircularProgressbar
+                          value={90}
+                          text={90 + "%"}
+                          styles={buildStyles({
+                            textColor: "blue",
+                            pathColor: "darkBlue",
+                          })}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -178,15 +199,18 @@ function Admin() {
                     <div className="col text-center">5</div>
                     <div className="col">
                       <div style={{ width: 60, height: 70 }}>
-                        <CircularProgressbar value={10} text={10 + '%'} styles={buildStyles({
-                          textColor: 'blue',
-                          pathColor: 'darkBlue',
-                        })} />
+                        <CircularProgressbar
+                          value={10}
+                          text={10 + "%"}
+                          styles={buildStyles({
+                            textColor: "blue",
+                            pathColor: "darkBlue",
+                          })}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -194,45 +218,53 @@ function Admin() {
           <hr />
           <div className="container">
             <MaterialTable
-              onRowClick={(rowData) => { editTicket(rowData.userId) }}
+              onRowClick={(rowData) => {
+                editTicket(rowData.userId);
+              }}
               columns={[
-                { title: 'Ticket Id', field: 'id' },
-                { title: 'Title', field: 'title' },
-                { title: 'Description', field: 'description' },
-                { title: 'Reporter', field: 'reporter' },
-                { title: 'Assignee', field: 'assignee' },
-                { title: 'TicketPriority', field: 'ticketPriority' },
+                { title: "Ticket Id", field: "id" },
+                { title: "Title", field: "title" },
+                { title: "Description", field: "description" },
+                { title: "Reporter", field: "reporter" },
+                { title: "Assignee", field: "assignee" },
+                { title: "TicketPriority", field: "ticketPriority" },
                 {
-                  title: 'Status', field: 'status',
+                  title: "Status",
+                  field: "status",
                   lookup: {
-                    'OPEN': 'OPEN',
-                    'IN_PROGRESS': 'IN_PROGRESS',
-                    'CLOSED': 'CLOSED',
-                    'BLOCKED': 'BLOCKED'
-                  }
-                }
+                    OPEN: "OPEN",
+                    IN_PROGRESS: "IN_PROGRESS",
+                    CLOSED: "CLOSED",
+                    BLOCKED: "BLOCKED",
+                  },
+                },
               ]}
               data={ticketList}
-
               options={{
                 filtering: true,
                 sorting: true,
-                exportMenu: [{
-                  label: 'Export PDF',
-                  exportFunc: (cols, datas) => ExportPdf(cols, datas, 'UserRecords')
-                }, {
-                  label: 'Export CSV',
-                  exportFunc: (cols, datas) => ExportCsv(cols, datas, 'userRecords')
-                }],
+                exportMenu: [
+                  {
+                    label: "Export PDF",
+                    exportFunc: (cols, datas) =>
+                      ExportPdf(cols, datas, "UserRecords"),
+                  },
+                  {
+                    label: "Export CSV",
+                    exportFunc: (cols, datas) =>
+                      ExportCsv(cols, datas, "userRecords"),
+                  },
+                ],
                 headerStyle: {
-                  backgroundColor: 'darkblue',
-                  color: '#FFF'
+                  backgroundColor: "darkblue",
+                  color: "#FFF",
                 },
                 rowStyle: {
-                  backgroundColor: '#EEE',
-                }
+                  backgroundColor: "#EEE",
+                },
               }}
-              title="Ticket Details" />
+              title="Ticket Details"
+            />
           </div>
 
           <hr />
@@ -241,57 +273,68 @@ function Admin() {
             <MaterialTable
               onRowClick={(rowData, userId) => updateTicket(rowData.userId)}
               columns={[
-                { title: 'User Id', field: 'userId' },
-                { title: 'Name', field: 'name' },
-                { title: 'Email', field: 'email' },
+                { title: "User Id", field: "userId" },
+                { title: "Name", field: "name" },
+                { title: "Email", field: "email" },
                 {
-                  title: 'User Types', field: 'userTypes',
+                  title: "User Types",
+                  field: "userTypes",
                   lookup: {
-                    'APPROVED': 'APPROVED',
-                    'PENDING': 'PENDING',
-                    'REJECTED': 'REJECTED'
-                  }
+                    APPROVED: "APPROVED",
+                    PENDING: "PENDING",
+                    REJECTED: "REJECTED",
+                  },
                 },
                 {
-                  title: 'Status', field: 'userStatus',
+                  title: "Status",
+                  field: "userStatus",
                   lookup: {
-                    'CUSTOMER': 'CUSTOMER',
-                    'ENGINEER': 'ENGINEER',
-                    'ADMIN': 'ADMIN'
-                  }
-                }
+                    CUSTOMER: "CUSTOMER",
+                    ENGINEER: "ENGINEER",
+                    ADMIN: "ADMIN",
+                  },
+                },
               ]}
               data={userDetails}
-
               options={{
                 filtering: true,
                 sorting: true,
-                exportMenu: [{
-                  label: 'Export PDF',
-                  exportFunc: (cols, datas) => ExportPdf(cols, datas, 'UserRecords')
-                }, {
-                  label: 'Export CSV',
-                  exportFunc: (cols, datas) => ExportCsv(cols, datas, 'userRecords')
-                }],
+                exportMenu: [
+                  {
+                    label: "Export PDF",
+                    exportFunc: (cols, datas) =>
+                      ExportPdf(cols, datas, "UserRecords"),
+                  },
+                  {
+                    label: "Export CSV",
+                    exportFunc: (cols, datas) =>
+                      ExportCsv(cols, datas, "userRecords"),
+                  },
+                ],
                 headerStyle: {
-                  backgroundColor: 'darkblue',
-                  color: '#FFF'
+                  backgroundColor: "darkblue",
+                  color: "#FFF",
                 },
                 rowStyle: {
-                  backgroundColor: '#EEE',
-                }
+                  backgroundColor: "#EEE",
+                },
               }}
-              title="User Details" />
+              title="User Details"
+            />
           </div>
 
           <div>
-            <Button className="btn btn-primary" onClick={openUserModal}>Open Modals</Button>
+            <Button className="btn btn-primary" onClick={openUserModal}>
+              Open Modals
+            </Button>
 
-            <Modal show={userModal}
+            <Modal
+              show={userModal}
               onHide={closeUserModal}
               centered
               backdrop="static"
-              keyboard={false}>
+              keyboard={false}
+            >
               <Modal.Header closeButton>
                 <Modal.Title>Edit Details</Modal.Title>
               </Modal.Header>
@@ -299,22 +342,31 @@ function Admin() {
               <Modal.Body>
                 <form className="">
                   <div className="p-1">
-                    <h5 className="text-primary">Ticket ID: {userDetails.userId}</h5>
+                    <h5 className="text-primary">
+                      Ticket ID: {userDetails.userId}
+                    </h5>
                     <hr />
                     <div className="input-group">
-                      <label className="label input-group-text label-md ">Name {userDetails.name}</label>
-                      <input type="text" className="form-control" name="name" disabled onChange={onTicketUpdate}/>
+                      <label className="label input-group-text label-md ">
+                        Name {userDetails.name}
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="name"
+                        disabled
+                        onChange={onTicketUpdate}
+                      />
                     </div>
                   </div>
                 </form>
               </Modal.Body>
             </Modal>
           </div>
-
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default Admin;
