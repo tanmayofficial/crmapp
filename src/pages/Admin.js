@@ -41,13 +41,15 @@ function Admin() {
   const closeUserModal = () => {
     setUserModal(false);
   };
+
+  //ticket logic
   const fetchAllTickets = () => {
     fetchTicket()
       .then((res) => {
         if (res.status === 200) {
           console.log(res);
           setTicketDetails(res.data);
-          updateTicket(res.data);
+          updateTicketCounts(res.data);
         }
       })
       .catch((err) => {
@@ -128,6 +130,23 @@ function Admin() {
     };
 
     setSelectedCurrTicket(ticket);
+    setTicketUpdateModal(true);
+  };
+
+  const updateTicketCounts = (tickets) => {
+    const data = {
+      pending: 0,
+      closed: 0,
+      progress: 0,
+      blocked: 0,
+    };
+    tickets.forEach((x) => {
+      if (x.status === "OPEN") data.pending += 1;
+      else if (x.status === "IN_PROGRESS") data.progress += 1;
+      else if (x.status === "BLOCKED") data.blocked += 1;
+      else data.closed += 1;
+    });
+    setTicketStatusCount(Object.assign({}, data));
   };
 
   const changeUserDetail = (e) => {
@@ -184,6 +203,7 @@ function Admin() {
 
   const updateSelectedCurrTicket = (data) => setSelectedCurrTicket(data);
   const closeTicketUpdationModal = () => setTicketUpdateModal(false);
+
   return (
     <div className="bg-light min-vh-100">
       <div className="col-1">
